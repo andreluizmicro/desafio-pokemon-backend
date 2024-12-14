@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace Core\Application\UseCase\Pokemon\FetchPokemon;
 
+use Core\Application\Dtos\PokemonTypesDto;
 use Core\Domain\Entity\Pokemon;
 use Core\Domain\Exception\PokemonsNotFoundException;
+use Core\Domain\Exception\PokemonTypesNotFoundException;
 use Core\Domain\Integration\External\PokemonApiGatewayInterface;
 use Core\Domain\Repository\PokemonRepositoryInterface;
-use Core\Domain\Repository\TypeRepositoryInterface;
+use Core\Domain\Repository\PokemonTypeRepositoryInterface;
 use Core\Domain\Repository\TransactionInterface;
+use Core\Domain\Repository\TypeRepositoryInterface;
+use Core\Infrastructure\Integration\Helpers\StringHelper;
 use Throwable;
 
 class FetchPokemonUseCase
@@ -17,8 +21,9 @@ class FetchPokemonUseCase
     public function __construct(
         protected PokemonApiGatewayInterface $pokemonApiGateway,
         protected PokemonRepositoryInterface $pokemonRepository,
-        protected TypeRepositoryInterface    $pokemonTypeRepository,
-        protected TransactionInterface       $transaction,
+        protected PokemonTypeRepositoryInterface $pokemonTypeRepository,
+        protected TypeRepositoryInterface $typeRepository,
+        protected TransactionInterface $transaction,
     ) {
     }
 
@@ -31,14 +36,20 @@ class FetchPokemonUseCase
             $pokemonFound = $this->findPokemon($inputDto->id);
 
             if (! is_null($pokemonFound)) {
+                $pokemonTypesDto = $this->pokemonTypeRepository->findByPokemonId($inputDto->id);
+
+                $pokemonFound->changeTypes($pokemonTypesDto->types);
+
                 return $this->buildOutputDto($pokemonFound);
             }
 
             $pokemon = $this->pokemonApiGateway->fetchPokemon($inputDto->id);
 
-            dd($this->pokemonTypeRepository->list());
-
             $pokemonCreated = $this->pokemonRepository->create($pokemon);
+
+            $this->typeRepository->createMany($pokemon->types());
+
+            $this->pokemonTypeRepository->createMany($pokemon->id(), $pokemon->types());
 
             $this->transaction->commit();
 

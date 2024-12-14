@@ -8,7 +8,6 @@ use Core\Domain\Entity\Pokemon;
 use Core\Domain\Exception\PokemonsNotFoundException;
 use Core\Domain\Repository\PokemonRepositoryInterface;
 use Core\Infrastructure\Repository\Model\Pokemon as PokemonModel;
-use Core\Infrastructure\Repository\Model\Type;
 use Throwable;
 
 class PokemonRepository implements PokemonRepositoryInterface
@@ -19,18 +18,14 @@ class PokemonRepository implements PokemonRepositoryInterface
 
     public function create(Pokemon $pokemon): Pokemon
     {
-        dd($pokemon);
-
         $pokemon = $this->model->create([
+            'id' => $pokemon->id(),
             'name' => $pokemon->name(),
-            'type' => $pokemon->type(),
             'height' => $pokemon->height(),
             'weight' => $pokemon->weight(),
         ]);
 
-        dd($pokemon);
-
-        return $pokemon->id;
+        return $this->toEntity($pokemon->toArray());
     }
 
     /**
@@ -39,11 +34,22 @@ class PokemonRepository implements PokemonRepositoryInterface
     public function findById(int $id): Pokemon
     {
         try {
-            return $this->model->find($id);
+            $result = $this->model->where(['id' => $id])->find($id);
+
+            return $this->toEntity($result->toArray());
         } catch (Throwable) {
             throw new PokemonsNotFoundException('Pokemon not found');
         }
     }
 
-
+    private function toEntity(array $data): Pokemon
+    {
+        return new Pokemon(
+            id: $data['id'],
+            name: $data['name'],
+            types: [],
+            height: $data['height'],
+            weight: $data['weight'],
+        );
+    }
 }

@@ -45,7 +45,13 @@ class PokemonController extends Controller
                 )
             );
 
-            return response()->json(['id' => $output->id]);
+            return response()->json([
+                'id' => $output->id,
+                'name' => $output->name,
+                'types' => $output->types,
+                'heigth' => $output->height,
+                'weight' => $output->weight,
+            ]);
         } catch (Throwable $exception) {
             return response()->json(['message' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
         }

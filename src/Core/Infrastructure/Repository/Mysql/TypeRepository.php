@@ -4,17 +4,25 @@ declare(strict_types=1);
 
 namespace Core\Infrastructure\Repository\Mysql;
 
+use Core\Domain\Entity\Type;
 use Core\Domain\Repository\TypeRepositoryInterface;
-use Core\Infrastructure\Repository\Model\Type;
-use Illuminate\Database\Eloquent\Collection;
+use Core\Infrastructure\Repository\Model\Type as TypeModel;
 
 class TypeRepository implements TypeRepositoryInterface
 {
-    public function __construct(protected Type $model) {
+    public function __construct(protected TypeModel $model) {
     }
 
-    public function list(): Collection
+    /**
+     * @param Type[] $types
+     */
+    public function createMany(array $types): void
     {
-        return $this->model->all();
+        array_map(function ($type) {
+            $this->model->firstOrCreate([
+                'id' => $type->id,
+                'name' => $type->name
+            ]);
+        }, $types);
     }
 }

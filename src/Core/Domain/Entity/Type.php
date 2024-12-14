@@ -12,7 +12,7 @@ class Type
      * @throws InvalidTypeException
      */
     public function __construct(
-        public int $id,
+         public int $id,
          public string $name
      ) {
          $this->validate();

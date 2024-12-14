@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Core\Domain\Repository;
 
-use Illuminate\Database\Eloquent\Collection;
+use Core\Domain\Entity\Type;
 
 interface TypeRepositoryInterface
 {
-    public function list(): Collection;
+    /**
+     * @param Type[] $types
+     */
+    public function createMany(array $types): void;
 }

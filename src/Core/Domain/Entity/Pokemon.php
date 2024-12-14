@@ -12,7 +12,7 @@ class Pokemon
     public function __construct(
         public int $id,
         public string $name,
-        public array $types,
+        public ?array $types = [],
         public float  $height,
         public float  $weight,
     )
@@ -41,10 +41,16 @@ class Pokemon
         return $this->name;
     }
 
+    public function changeTypes(array $types): void
+    {
+        $this->types = $types;
+    }
+
     public function types(): ?array
     {
         return $this?->types;
     }
+
     public function height(): float
     {
         return $this->height;

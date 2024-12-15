@@ -9,6 +9,7 @@ use Core\Application\UseCase\Pokemon\FetchPokemon\FetchPokemonInputDto;
 use Core\Application\UseCase\Pokemon\FetchPokemon\FetchPokemonUseCase;
 use Core\Application\UseCase\Pokemon\ListPokemon\ListPokemonsInputDto;
 use Core\Application\UseCase\Pokemon\ListPokemon\ListPokemonsUseCase;
+use Core\Infrastructure\Http\Resources\PokemonListResource;
 use Core\Infrastructure\Http\Resources\PokemonResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -33,7 +34,7 @@ class PokemonController extends Controller
             )
         );
 
-       return (new PokemonResource($output))->response();
+       return (new PokemonListResource($output))->response();
     }
 
     public function fetch(Request $request): JsonResponse
@@ -45,13 +46,7 @@ class PokemonController extends Controller
                 )
             );
 
-            return response()->json([
-                'id' => $output->id,
-                'name' => $output->name,
-                'types' => $output->types,
-                'heigth' => $output->height,
-                'weight' => $output->weight,
-            ]);
+            return (new PokemonResource($output))->response();
         } catch (Throwable $exception) {
             return response()->json(['message' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
         }

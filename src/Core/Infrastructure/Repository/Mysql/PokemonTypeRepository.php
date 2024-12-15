@@ -34,7 +34,7 @@ class PokemonTypeRepository implements PokemonTypeRepositoryInterface
         return new PokemonTypesDto(
             types: array_map(function (PokemonTypeModel $type) {
                 return new PokemonType(
-                    id: $type->id,
+                    id: $type->toArray()['type']['id'],
                     name: $type->toArray()['type']['name']
                 );
             }, iterator_to_array($pokemonTypes)),

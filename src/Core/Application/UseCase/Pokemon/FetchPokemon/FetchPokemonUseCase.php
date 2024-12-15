@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace Core\Application\UseCase\Pokemon\FetchPokemon;
 
-use Core\Application\Dtos\PokemonTypesDto;
 use Core\Domain\Entity\Pokemon;
 use Core\Domain\Exception\PokemonsNotFoundException;
-use Core\Domain\Exception\PokemonTypesNotFoundException;
 use Core\Domain\Integration\External\PokemonApiGatewayInterface;
 use Core\Domain\Repository\PokemonRepositoryInterface;
 use Core\Domain\Repository\PokemonTypeRepositoryInterface;
 use Core\Domain\Repository\TransactionInterface;
 use Core\Domain\Repository\TypeRepositoryInterface;
-use Core\Infrastructure\Integration\Helpers\StringHelper;
 use Throwable;
 
 class FetchPokemonUseCase
@@ -50,6 +47,8 @@ class FetchPokemonUseCase
             $this->typeRepository->createMany($pokemon->types());
 
             $this->pokemonTypeRepository->createMany($pokemon->id(), $pokemon->types());
+
+            $pokemonCreated->changeTypes($pokemon->types());
 
             $this->transaction->commit();
 
